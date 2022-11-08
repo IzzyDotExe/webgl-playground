@@ -1,100 +1,90 @@
 
-let movement;
-let position;
-let camera;
+
+let player1;
+let player2;
+let ball;
 
 function setup() {
 
-    createCanvas(860, 520, WEBGL);
-    movement = createVector();
-    position = createVector();
-    camera = createCamera();
+    createCanvas(400, 400);
+    player1 = new Paddle(0);
+    player2 = new Paddle(1);
+    ball = new Ball();
 
 }
 
 function handleInput() {
-
-    if (keyIsDown(65)) {
-        movement.x += 0.1;
-    } else if (keyIsDown(68)) {
-        movement.x -= 0.1;
-    } else {
-        movement.x = 0;
-    }
-
-    if (keyIsDown(87)) {
-        movement.y += 0.1;
-    } else if (keyIsDown(83)) {
-        movement.y -= 0.1;
-    } else {
-        movement.y = 0;
-    }
-
-    clampvector(movement, -1, 1);
-
-}
-
-function clampvector(vec, min, max) {
-    if (vec.y > max) {
-        vec.y = max;
-    } 
-
-    if (vec.y < min) {
-        vec.y = min;
-    }
-
-    if (vec.x > max) {
-        vec.x = max;
-    } 
-
-    if (vec.x < min) {
-        vec.x = min;
-    }
-
-    if (vec.z > max) {
-        vec.z = max;
-    }
-
-    if (vec.z < min) {
-        vec.z = min;
-    }
-
-}
-
-function handleMovement() {
-
-    position.x += movement.x;
-    position.y += movement.y;
-
-    camera.move(-movement.x, movement.z, -movement.y)
-
-    camera.tilt(movedY * 0.001)
-    camera.pan(-movedX * 0.001 )
     
+    if (keyIsDown(39)) {
+        player2.move(-3);
+    }
+
+    
+
+    if (keyIsDown(37)) {
+        player2.move(3);
+    }
+
+    if (keyIsDown(38)) {
+        player1.move(-3);
+    }
+
+    if (keyIsDown(40)) {
+        player1.move(3);
+    }
 }
 
 function keyPressed() {
     console.log(keyCode);
-    if (keyCode == 70) {
-        requestPointerLock();
-    } 
 }
 
 function draw() {
 
-    //orbitControl();
+    background(0)
 
     handleInput();
-    handleMovement();
 
-    background(117);
+    player1.draw();
+    player1.aiImpossible(ball);
 
-    box(100)
+    player2.draw();
+    stroke(225)
+    let top = line(0, 0, width, 0);
+    let botton = line(0, height, width, height);
+    ball.draw();
+
+    let hitp1 = ball.collisionCheck(player1)
+    let hitp2 = ball.collisionCheck(player2)
+
+    if (hitp1 || hitp2) {
+        
+        ball.direction.x = -ball.direction.x;
+
+        if (hitp1)
+            ball.direction.y = player1.momentum;
+        
+        if (hitp2)
+            ball.direction.y = player2.momentum;
+
+    }
 
 
+    ball.lineColCheck()
 
-    //console.log(prevmouse); 
-    //console.log(mouse);
+    if (ball.position.x > width) {
+        ball.reset();
+        player1.score++;
+        player1.reset()
+        player2.reset()
+    }
+    if (ball.position.x < 0) {
+        ball.reset()
+        player2.score++;
+        player1.reset()
+        player2.reset()
+    } 
+
+    line(width/2, 0, width/2, height)
 
 
 
